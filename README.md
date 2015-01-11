@@ -25,7 +25,7 @@ consistancy的问题：
 定义：写成功后，是否马上能读到最新的数据。
 
 强一致性，是写成功后，马上能读到最新数据
-最终一致性，是写成功后，一段时间后能读到数据。
+最终一致性，是写成功后，一段时间后保证能读到数据。
 
 强一致性的代表：
  google chubby  （据说是唯一一个完全实现了paxos的项目）  
@@ -35,9 +35,21 @@ consistancy的问题：
  还有raft算法
 
 最终一致性的代表：
-还有dynamo(amazon), 
-cassandra(facebook, base on big table and dynamo), 
-和akka cluster-(base on dynamo)这些的一致性是通过vector lock来做的
+还有dynamo(amazon):NWR模型
+N - 代表备份数量
+W - 写到多少个node上后算写成功
+R - 读的时候，读多少份
+
+NWR,他们之间有一个关系：R > N - W，很直观，总能读到一个最新的。
+在这个规则之上，让用户自己定义NWR的数量, 从而选择CAP。
+
+vector lock:
+
+
+
+akka cluster-(base on dynamo)
+
+
 
 2. 集群锁（主从，怎么选取主节点）
     上交所利用的是OpenVMS提供的集群锁。在这里又提到zookeeper，zookeeper是干什么用的呢？
@@ -48,6 +60,10 @@ zookeeper做在HDFS里，主要做的事情是选取主节点，保证只有一�
 
 3. 易拓展，高可用，高性能，三者间的平衡
                    著名的CAP理论，
+
+C: consistency
+A: Avalibility
+P: Partion tolernce分区容忍性
               
 4. 高可用性的保障方案（0丢失），原因应该是用了多层次的冗余.
 
