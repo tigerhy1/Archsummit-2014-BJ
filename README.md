@@ -32,7 +32,9 @@ consistancy的问题：
  yahoo zookeeper (hadoop子项目， 实现了简化版的zab，但据用过的人说500台左右的机器的时候，问题开始出现)
  之后的分享里面还会继续出现。
  
- 还有raft算法
+ 还有raft算法：是paxos算法的易于实现版。
+ 
+
 
 最终一致性的代表：
 还有dynamo(amazon):NWR模型
@@ -43,11 +45,19 @@ R - 读的时候，读多少份
 NWR,他们之间有一个关系：R > N - W，很直观，总能读到一个最新的。
 在这个规则之上，让用户自己定义NWR的数量, 从而选择CAP。
 
-vector lock:
+vector lock: 
+就是记录两个东西：
+1. 谁更新的我
+2. 版本号是多少
 
-
+N = 3, W = 1, R = 3
+例子：
+A结点：D2(A,2)
+B结点：D3(A,2;  B,1);
+C结点：D4(A,2;  C,1)
 
 akka cluster-(base on dynamo)
+是用dynamo里的gossip协议和vector lock来实现cluster status的一致性。
 
 
 
@@ -59,10 +69,12 @@ zookeeper做在HDFS里，主要做的事情是选取主节点，保证只有一�
     还有豌豆荚的redis集群解决方案里，是利用zookeeper来存储路由表的（redis instance id -> address）
 
 3. 易拓展，高可用，高性能，三者间的平衡
-                   著名的CAP理论，
+                   
 
-C: consistency
-A: Avalibility
+著名的CAP理论，(可以根据dynamo的配置，来说明CAP是怎么选择的)
+
+C: consistency, 一致性 ,数据一致更新，所有数据变动都是同步的
+A: Avalibility, 这里指的是高性能,在容忍的响应时间内，每个操作总是能够返回
 P: Partion tolernce分区容忍性
               
 4. 高可用性的保障方案（0丢失），原因应该是用了多层次的冗余.
@@ -71,8 +83,8 @@ P: Partion tolernce分区容忍性
 1.一个进程，或者一台机器down掉，数据会丢失吗？服务会中断吗？能自动恢复吗？
 2.局部的service升级，需要停止服务吗？
 3.加机器或者减机器，是否方便？是否需要停止服务？
+4.有没有流量控制机制（系统负载过重的时候，拒绝一部分请求）。
 
-相关资料：Paxos算法(zookeeper-hadoop-yahoo, chubby-google)，虚拟同步(isis-纽交所, dynamo-amazon, akka cluster-based on dynamo,  cassandra-based on big table and dynamo)
 
 
 
